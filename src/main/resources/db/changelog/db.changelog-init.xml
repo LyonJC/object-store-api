@@ -25,7 +25,19 @@
 		</sql>
 	</changeSet>
 
-	<changeSet context="schema-change" id="init-3" author="gendreauc">
+	<changeSet context="schema-change" id="init-7" author="poffm">
+		<createTable tableName="revision">
+			<column autoIncrement="true" name="id" type="SERIAL">
+        <constraints primaryKey="true" primaryKeyName="pk_revision" />
+			</column>
+			<column name="timestamp" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+			<column name="username" type="VARCHAR(255)" />
+		</createTable>
+	</changeSet>
+
+	<changeSet context="schema-change" id="init-4" author="gendreauc">
 		<createTable tableName="metadata">
 			<column autoIncrement="true" name="id" type="SERIAL">
 				<constraints primaryKey="true" primaryKeyName="pk_metadata_id" />
@@ -65,8 +77,35 @@
 			<column name="ac_metadata_creator_id" type="INTEGER" />
 			<column name="created_date" type="timestamptz" defaultValueComputed="current_timestamp" />
 		</createTable>
+		<createTable tableName="metadata_aud">
+			<column name="id" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_metadata_aud"/>
+			</column>
+		  <column name="rev" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_metadata_aud"/>
+			</column>
+			<column name="revtype" type="SMALLINT" />
+			<column name="uuid" type="uuid" />
+			<column name="file_identifier" type="uuid" />
+			<column name="file_extension" type="VARCHAR(10)" />
+			<column name="bucket" type="VARCHAR(50)" />
+			<column name="ac_caption" type="VARCHAR(250)" />
+			<column name="dc_format" type="VARCHAR(150)" />
+			<column name="dc_type" type="dctype" />
+			<column name="xmp_rights_web_statement" type="VARCHAR(250)" />
+			<column name="ac_rights" type="VARCHAR(250)" />
+			<column name="xmp_rights_owner" type="VARCHAR(250)" />
+			<column name="ac_digitization_date" type="timestamptz" />
+			<column name="xmp_metadata_date" type="timestamptz" />
+			<column name="original_filename" type="VARCHAR(250)" />
+			<column name="ac_hash_function" type="VARCHAR(50)" />
+			<column name="ac_hash_value" type="VARCHAR(128)" />
+			<column name="ac_tags" type="text[]" />
+			<column name="ac_metadata_creator_id" type="INTEGER" />
+			<column name="created_date" type="timestamptz" />
+		</createTable>
 	</changeSet>
-		<changeSet context="schema-change" id="init-4" author="gendreauc">
+		<changeSet context="schema-change" id="init-5" author="gendreauc">
 		<createTable tableName="managed_attribute">
 			<column autoIncrement="true" name="id" type="SERIAL">
 				<constraints primaryKey="true" primaryKeyName="pk_managed_attribute_id" />
@@ -83,8 +122,22 @@
 			<column name="accepted_values" type="text[]" />
 			<column name="created_date" type="timestamptz" defaultValueComputed="current_timestamp" />
 		</createTable>
+		<createTable tableName="managed_attribute_aud">
+			<column name="id" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_managed_attribute_aud"/>
+			</column>
+		  <column name="rev" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_managed_attribute_aud"/>
+			</column>
+			<column name="revtype" type="SMALLINT" />
+			<column name="uuid" type="uuid" />
+			<column name="type" type="managed_attribute_type" />
+			<column name="name" type="VARCHAR(50)" />
+			<column name="accepted_values" type="text[]" />
+			<column name="created_date" type="timestamptz" />
+		</createTable>
 	</changeSet>
-	<changeSet context="schema-change" id="init-5" author="shemyg">
+	<changeSet context="schema-change" id="init-6" author="shemyg">
 		<createTable tableName="metadata_managed_attribute">
 			<column autoIncrement="true" name="id" type="SERIAL">
 				<constraints primaryKey="true" primaryKeyName="pk_metatdata_managed_attribute_id" />
@@ -102,8 +155,21 @@
 				<constraints nullable="false"/>
 			</column>
 		</createTable>
+		<createTable tableName="metadata_managed_attribute_aud">
+		  <column name="id" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_metadata_managed_attribute_aud"/>
+			</column>
+		  <column name="rev" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_metadata_managed_attribute_aud"/>
+			</column>
+			<column name="revtype" type="SMALLINT" />
+		  <column name="uuid" type="uuid" />
+		  <column name="metadata_id" type="integer" />
+		  <column name="managed_attribute_id" type="integer" />
+		  <column name="assigned_value" type="varchar(250)" />
+    </createTable>
 	</changeSet>
-	<changeSet context="schema-change" id="init-6" author="gendreauc">
+	<changeSet context="schema-change" id="init-7" author="gendreauc">
 		<createTable tableName="agent">
 			<column autoIncrement="true" name="id" type="SERIAL">
 				<constraints primaryKey="true" primaryKeyName="pk_agent_id" />
@@ -118,6 +184,18 @@
 				<constraints nullable="false" unique="true" />
 			</column>
 		</createTable>
+		<createTable tableName="agent_aud">
+		  <column name="id" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_agent_aud"/>
+			</column>
+		  <column name="rev" type="INTEGER">
+				<constraints primaryKey="true" primaryKeyName="pk_agent_aud"/>
+			</column>
+			<column name="revtype" type="SMALLINT" />
+		  <column name="uuid" type="uuid" />
+		  <column name="display_name" type="VARCHAR(250)" />
+		  <column name="email" type="VARCHAR(250)" />
+    </createTable>
 		<addForeignKeyConstraint baseColumnNames="ac_metadata_creator_id"
             baseTableName="metadata"
             constraintName="fk_metadata_creator_agent"
