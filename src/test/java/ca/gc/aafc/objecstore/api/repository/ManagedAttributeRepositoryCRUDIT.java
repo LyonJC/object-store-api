@@ -9,6 +9,12 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
@@ -22,15 +28,21 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
   
   private ManagedAttribute testManagedAttribute;
   
-  private ManagedAttribute createTestManagedAttribute() {
+  private ManagedAttribute createTestManagedAttribute() throws JsonProcessingException{
     testManagedAttribute = ManagedAttributeFactory.newManagedAttribute().build();
-    testManagedAttribute.setAcceptedValues(new String[] {"dosal"});
+    testManagedAttribute.setAcceptedValues(new String[] {"dosal"});    
+    
+    String json = "{ \"en\" : \"attrEn\", \"fr\" : \"attrFr\"} ";
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonNode = objectMapper.readTree(json);    
+    testManagedAttribute.setDescription(jsonNode);  
+    
     persist(testManagedAttribute);
     return testManagedAttribute;
   }
   
   @BeforeEach
-  public void setup() { 
+  public void setup() throws JsonProcessingException { 
     createTestManagedAttribute();    
   }  
 
@@ -48,6 +60,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testManagedAttribute.getManagedAttributeType(), 
         managedAttributeDto.getManagedAttributeType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());    
+    assertEquals(testManagedAttribute.getDescription(), managedAttributeDto.getDescription());
     
   }
     
