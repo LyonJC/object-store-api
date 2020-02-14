@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @TypeDefs({
     @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class),
     @TypeDef(name = "string-array", typeClass = StringArrayType.class),
-    @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class),
+    @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class)
 })
 @AllArgsConstructor
 @Builder
