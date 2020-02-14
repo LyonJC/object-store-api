@@ -2,9 +2,8 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -25,6 +24,6 @@ public class ManagedAttributeDto {
   private List<String> acceptedValues;
   private OffsetDateTime createdDate;
   
-  private JsonNode description;
+  private Map<String,String> description;
   
 }

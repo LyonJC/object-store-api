@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,19 +19,18 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 
 public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   
-  private JsonNode jsonNode;  
+  private Map<String, String> testDesc;  
    
   private ManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {"a", "b"})
-      .description(jsonNode)
+      .description(testDesc)
       .build();
   
   @Before
-  private void setupTest() throws JsonProcessingException{
-    
-    String json = "{ \"en\" : \"attrEn\", \"fr\" : \"attrFr\"} ";  
-    ObjectMapper objectMapper = new ObjectMapper();
-    jsonNode = objectMapper.readTree(json) ;      
+  private void setupTest() {    
+    testDesc = new HashMap<String,String>();
+    testDesc.put("en","attrEn");
+    testDesc.put("fr","attrFr");       
   }  
       
   @Override
@@ -46,7 +48,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     
     assertArrayEquals(new String[] {"a", "b"}, managedAttributeUnderTest.getAcceptedValues());
     
-    assertEquals(jsonNode, managedAttributeUnderTest.getDescription());
+    assertEquals(testDesc, managedAttributeUnderTest.getDescription());
     
     assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
   }

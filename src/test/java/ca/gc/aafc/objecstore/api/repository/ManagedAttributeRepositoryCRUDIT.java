@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +35,10 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     testManagedAttribute = ManagedAttributeFactory.newManagedAttribute().build();
     testManagedAttribute.setAcceptedValues(new String[] {"dosal"});    
     
-    String json = "{ \"en\" : \"attrEn\", \"fr\" : \"attrFr\"} ";
-    ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode jsonNode = objectMapper.readTree(json);    
-    testManagedAttribute.setDescription(jsonNode);  
+    Map<String, String> testAttrMap = new HashMap<String,String>();
+    testAttrMap.put("en","attrEn");
+    testAttrMap.put("fr","attrFr");
+    testManagedAttribute.setDescription(testAttrMap);  
     
     persist(testManagedAttribute);
     return testManagedAttribute;
@@ -60,8 +63,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testManagedAttribute.getManagedAttributeType(), 
         managedAttributeDto.getManagedAttributeType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());    
-    assertEquals(testManagedAttribute.getDescription(), managedAttributeDto.getDescription());
-    
+    assertEquals(testManagedAttribute.getDescription().get("en"), managedAttributeDto.getDescription().get("en"));    
   }
     
 }
