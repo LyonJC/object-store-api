@@ -87,6 +87,7 @@
 			</column>
 			<column name="accepted_values" type="text[]" />
 			<column name="created_date" type="timestamptz" defaultValueComputed="current_timestamp" />
+			<column name="description" type="jsonb" />			
 		</createTable>
 	</changeSet>
 	<changeSet context="schema-change" id="init-5" author="shemyg">

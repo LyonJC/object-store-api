@@ -18,8 +18,10 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 
 import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -30,7 +32,8 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @TypeDefs({
     @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class),
-    @TypeDef(name = "string-array", typeClass = StringArrayType.class) 
+    @TypeDef(name = "string-array", typeClass = StringArrayType.class),
+    @TypeDef(name = "jsonb-node", typeClass = JsonNodeBinaryType.class),
 })
 @AllArgsConstructor
 @Builder
@@ -52,6 +55,18 @@ public class ManagedAttribute implements java.io.Serializable, UniqueObj {
 
   public enum ManagedAttributeType {
     INTEGER, STRING
+  }
+
+  private JsonNode description;
+  
+  @Type(type = "jsonb-node")
+  @Column(name = "description")
+  public JsonNode getDescription() {
+    return description;
+  }
+
+  public void setDescription(JsonNode description) {
+    this.description = description;
   }
 
   @Id
