@@ -140,6 +140,10 @@ limitations under the License.
         put the comment on.
       -->
      
+     <module name="SuppressionXpathSingleFilter">
+        <property name="files" value="generated-sources"/>
+     </module>
+     
       <!-- Turn off the line above it -->
       <module name="SuppressWithNearbyCommentFilter">
         <property name="influenceFormat" value="1"/>
@@ -362,6 +366,7 @@ limitations under the License.
       </module>
       
       <module name="RightCurly">
+        
         <property name="severity" value="error"/>
       </module>
 
