@@ -2,8 +2,6 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import java.io.IOException;
 
-import org.springframework.boot.jackson.JsonComponent;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -13,7 +11,9 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
+import org.springframework.boot.jackson.JsonComponent;
+
+import ca.gc.aafc.objectstore.api.entities.DcType;
 
 public final class DcTypeJsonSerDe {
   
@@ -26,7 +26,9 @@ public final class DcTypeJsonSerDe {
     @Override
     public DcType deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
         throws IOException {
-      return DcType.fromValue(jsonParser.getValueAsString()).orElse(null);
+      String valueAsString = jsonParser.getValueAsString();
+      return DcType.fromValue(valueAsString)
+          .orElseThrow(() -> new IllegalArgumentException("'" + valueAsString + "' is not a valid dc type"));
     }
   }
 
@@ -37,7 +39,7 @@ public final class DcTypeJsonSerDe {
     public void serialize(DcType value, JsonGenerator gen, SerializerProvider serializers)
         throws IOException {
       if (value != null) {
-        gen.writeString(value.getValue());
+        gen.writeString(value.name());
       } else {
         gen.writeNull();
       }

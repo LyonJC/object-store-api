@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
@@ -65,7 +66,12 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
     save(ma, false);
-    
+
+    ObjectStoreMetadata derivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(UUID.randomUUID())
+        .build();
+    save(derivedFrom);
+
     Agent metatdataCreator = AgentFactory.newAgent().build();
     save(metatdataCreator, false);
     assertNotNull(metatdataCreator.getId());
@@ -73,7 +79,9 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
         .acMetadataCreator(metatdataCreator)
-        .acDigitizationDate(TEST_OFFSET_DT).build();
+        .acDigitizationDate(TEST_OFFSET_DT)
+        .acDerivedFrom(derivedFrom)
+        .dcCreator(metatdataCreator).build();
     save(osm, false);
     assertNotNull(osm.getId());
     
@@ -91,7 +99,8 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     
     ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());
     assertEquals(metatdataCreator.getId(), restoredOsm.getAcMetadataCreator().getId());
-    
+    assertEquals(derivedFrom.getId(), restoredOsm.getAcDerivedFrom().getId());
+    assertEquals(metatdataCreator.getId(), restoredOsm.getDcCreator().getId());
   }
 
 }

@@ -42,10 +42,10 @@
             },
             "dcType": {
               "enum": [
-                "Image",
-                "Moving image",
-                "Sound",
-                "Text"
+                "IMAGE",
+                "MOVING_IMAGE",
+                "SOUND",
+                "TEXT"
               ],
               "description": "Type of object stored. Higher level than mediaType. https://tdwg.github.io/ac/termlist/#dc_type"
             },
@@ -142,11 +142,6 @@
                 }
               ],
               "description": "List of key(tag). Similar to https://tdwg.github.io/ac/termlist/#ac_tag"
-            },
-            "acDerivedFrom": {
-              "type": "string",
-              "description": "A URL that points to a meta data object that this meta derived from, such as a thumbnail. https://tdwg.github.io/ac/termlist/#ac_derivedFrom",
-              "pattern": "^(http://|https://)+"
             }
           }
         },
@@ -170,7 +165,26 @@
                   }
                 }      			  
               }              
-            }            
+            },
+            "acDerivedFrom": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The id of the metadata from which the object represented by this metadata is derived from."
+                  },
+                  "type": {
+                    "const": "metadata",
+                    "description": "The type of the acDerivedFrom object. https://tdwg.github.io/ac/termlist/#ac_derivedFrom"
+                  }
+                }
+              }
+            }
           }
         }
       }

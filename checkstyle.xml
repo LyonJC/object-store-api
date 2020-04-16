@@ -139,6 +139,11 @@ limitations under the License.
         This suppress will affect code one line above and below the line you
         put the comment on.
       -->
+      
+      <!-- Turn off the check on files under generated-sources folder -->
+     <module name="SuppressionXpathSingleFilter">
+        <property name="files" value="generated-sources"/>
+     </module>
      
       <!-- Turn off the line above it -->
       <module name="SuppressWithNearbyCommentFilter">
@@ -362,6 +367,7 @@ limitations under the License.
       </module>
       
       <module name="RightCurly">
+        
         <property name="severity" value="error"/>
       </module>
 
