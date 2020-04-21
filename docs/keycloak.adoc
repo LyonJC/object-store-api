@@ -26,3 +26,5 @@ NOTE: The scripts assumes https which may not be available on local setup, in th
 
 `curl -v -H "Authorization: Bearer <TOKEN>" localhost:8081/api/v1`
 
+NOTE: The token expires after 5 minutes
+
