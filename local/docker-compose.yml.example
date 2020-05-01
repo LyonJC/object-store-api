@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 
 # Keycloak needs a fixed IP/hostname, accessible both within and outside the Docker network
 # So setup a network with fixed subnet, put all containers on the same network, and specify IP for keycloak
