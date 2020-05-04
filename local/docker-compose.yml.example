@@ -4,25 +4,23 @@ services:
   object-store-db:
     image: "postgres:10"
     env_file:
-      - ${PATH_FROM_COMPOSE:-.}/pg.env
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/pg.env
     volumes:
-      - ${PATH_FROM_COMPOSE:-.}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
 
   minio:
     image: minio/minio
     volumes:
       - ./minio-data:/data
     env_file:
-      - ${PATH_FROM_COMPOSE:-.}/minio.env
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/minio.env
     command: server /data
 
   object-store-api:
-    build: ${PATH_FROM_COMPOSE:-.}
+    build: ${BASE_PATH_TO_OBJECT_STORE:-.}
     ports:
       - "8081:8080"
     env_file:
-      - ${PATH_FROM_COMPOSE:-.}/object-store-api.env
-    environment:
-      KEYCLOAK_HOST_IP: ${KEYCLOAK_IP}
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/object-store-api.env
     networks:
       default:
