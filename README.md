@@ -20,7 +20,6 @@ Create a new docker-compose.yml file and .env file from the example file in the 
 ```
 cp local/docker-compose.yml.example docker-compose.yml
 cp local/*.env .
-cp local/.env .env
 ```
 
 Start the app (default port is 8081):
