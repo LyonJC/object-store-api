@@ -67,6 +67,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerm;
 
   private String originalFilename;
 
@@ -390,6 +391,16 @@ public class ObjectStoreMetadata implements SoftDeletable {
   @PrePersist
   public void initUuid() {
     this.uuid = UUID.randomUUID();
+  }
+
+  @NotNull
+  @Column(name = "xmp_rights_usage_terms")  
+  public String getXmpRightsUsageTerm() {
+    return xmpRightsUsageTerm;
+  }
+
+  public void setXmpRightsUsageTerm(String xmpRightsUsageTerm) {
+    this.xmpRightsUsageTerm = xmpRightsUsageTerm;
   }
 
 }
