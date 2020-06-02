@@ -67,7 +67,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
-  private String xmpRightsUsageTerm;
+  private String xmpRightsUsageTerms;
 
   private String originalFilename;
 
@@ -394,13 +394,14 @@ public class ObjectStoreMetadata implements SoftDeletable {
   }
 
   @NotNull
-  @Column(name = "xmp_rights_usage_terms")  
-  public String getXmpRightsUsageTerm() {
-    return xmpRightsUsageTerm;
+  @Column(name = "xmp_rights_usage_terms")
+  @Size(max = 500)
+  public String getXmpRightsUsageTerms() {
+    return xmpRightsUsageTerms;
   }
 
-  public void setXmpRightsUsageTerm(String xmpRightsUsageTerm) {
-    this.xmpRightsUsageTerm = xmpRightsUsageTerm;
+  public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
+    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
 
 }
