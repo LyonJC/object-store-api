@@ -20,11 +20,11 @@ public class ObjectStoreConfiguration {
     this.defaultUsageTerms = defaultUsageTerms;
   }
 
-  public ObjectStoreConfiguration(String defaultLicenceURL, String defaultCopyright, String defaultCopyrightOwner, String defaultUsageTerm ) {
+  public ObjectStoreConfiguration(String defaultLicenceURL, String defaultCopyright, String defaultCopyrightOwner, String defaultUsageTerms ) {
     this.defaultLicenceURL = defaultLicenceURL;
     this.defaultCopyright = defaultCopyright;
     this.defaultCopyrightOwner = defaultCopyrightOwner;
-    this.defaultUsageTerms = defaultUsageTerm;
+    this.defaultUsageTerms = defaultUsageTerms;
   }
 
   public String getDefaultLicenceURL() {
