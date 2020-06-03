@@ -96,6 +96,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setDcCreator(UUID.randomUUID());
     objectStoreMetadata.setPubliclyReleasable(true);
     objectStoreMetadata.setNotPubliclyReleasableReason("Classified");
+    objectStoreMetadata.setXmpRightsUsageTerms(null);
 
     return toAttributeMap(objectStoreMetadata);
   }

@@ -42,6 +42,7 @@ public class ObjectStoreMetadataDto {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerms;
   
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
@@ -76,4 +77,5 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
+
 }

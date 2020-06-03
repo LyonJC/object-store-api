@@ -68,6 +68,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerms;
 
   private String originalFilename;
 
@@ -261,7 +262,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setManagedAttribute(List<MetadataManagedAttribute> managedAttribute) {
     this.managedAttribute = managedAttribute;
   }
-
+  
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -389,6 +390,17 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setDcCreator(UUID dcCreator) {
     this.dcCreator = dcCreator;
+  }
+
+  @NotNull
+  @Column(name = "xmp_rights_usage_terms")
+  @Size(max = 500)
+  public String getXmpRightsUsageTerms() {
+    return xmpRightsUsageTerms;
+  }
+
+  public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
+    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
 
 }
