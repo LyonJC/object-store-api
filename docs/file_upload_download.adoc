@@ -65,7 +65,7 @@ curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666f
 
 == File Thumbnail Download
 
-A thumbnail is automatically generated when an image file's metadata is uploaded. 
+A thumbnails metadata is automatically generated when an image file's metadata is uploaded. 
 
 The thumbnails metadata contains the thumbnails file identifier and the UUID of the original resources metada.
 
