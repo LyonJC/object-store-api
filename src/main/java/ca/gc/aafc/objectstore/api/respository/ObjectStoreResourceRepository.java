@@ -35,8 +35,6 @@ import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
-import io.crnk.core.exception.UnauthorizedException;
-import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
@@ -116,16 +114,6 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    /**
-     * Currently matches a DinaAuthenticatedUser first keycloak group to a bucket.
-     * This will be changed.
-     */
-    if (authenticatedUser.isPresent()) {
-      String firstGroup = authenticatedUser.get().getGroups().stream().findFirst()
-          .orElseThrow(() -> new UnauthorizedException("You must belong to a group"));
-      jpaFriendlyQuerySpec.addFilter(PathSpec.of("bucket").filter(FilterOperator.EQ, firstGroup));
-    }
 
     return super.findAll(jpaFriendlyQuerySpec);
   }
