@@ -209,7 +209,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    * Shows only non-soft-deleted records by default.
    * Shows only soft-deleted records if DELETED_PATH_SPEC is present.
    */
-  private static FilterHandler softDeletedFilterHandler = (querySpec, root, query,
+  private static FilterHandler softDeletedFilterHandler = (querySpec, root, 
       cb) -> !querySpec.findFilter(DELETED_PATH_SPEC).isPresent()
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
