@@ -11,14 +11,14 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.testsupport.factories.AgentFactory;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
@@ -28,6 +28,8 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectStoreMetadata objectStoreMetaUnderTest = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
+      .acMetadataCreator(UUID.randomUUID())
+      .dcCreator(UUID.randomUUID())
       .acDigitizationDate(TEST_OFFSET_DT)
       .build();
 
@@ -42,8 +44,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   public void testFind() {
     ObjectStoreMetadata fetchedObjectStoreMeta = find(ObjectStoreMetadata.class,
         objectStoreMetaUnderTest.getId());
+
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
-    
+    assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
+    assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
+    assertEquals(
+      objectStoreMetaUnderTest.getAcMetadataCreator(),
+      fetchedObjectStoreMeta.getAcMetadataCreator());
+
     // the returned acDigitizationDate will use the timezone of the server
     assertEquals(objectStoreMetaUnderTest.getAcDigitizationDate(),
         fetchedObjectStoreMeta.getAcDigitizationDate()
@@ -58,7 +66,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = objectStoreMetaUnderTest.getId();
-    remove(ObjectStoreMetadata.class, id);
+    deleteById(ObjectStoreMetadata.class, id);
     assertNull(find(ObjectStoreMetadata.class, id));
   }
   
@@ -72,22 +80,26 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .build();
     save(derivedFrom);
 
-    Agent metatdataCreator = AgentFactory.newAgent().build();
-    save(metatdataCreator, false);
-    assertNotNull(metatdataCreator.getId());
+    ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
+    save(ost, false);
    
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
-        .acMetadataCreator(metatdataCreator)
         .acDigitizationDate(TEST_OFFSET_DT)
         .acDerivedFrom(derivedFrom)
-        .dcCreator(metatdataCreator).build();
-    save(osm, false);
-    assertNotNull(osm.getId());
+        .acSubType(ost)
+        .build();
+
+    // Use "true" here to detach the Metadata,
+    // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
+    save(osm, true);
+
+    ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());
+    assertNotNull(restoredOsm.getId());
     
     // link the 2 entities
     MetadataManagedAttribute mma = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
-    .objectStoreMetadata(osm)
+    .objectStoreMetadata(restoredOsm)
     .managedAttribute(ma)
     .assignedValue("test value")
     .build();
@@ -95,12 +107,13 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     save(mma);
     
     MetadataManagedAttribute restoredMma = find(MetadataManagedAttribute.class, mma.getId());
-    assertEquals(osm.getId(), restoredMma.getObjectStoreMetadata().getId());
-    
-    ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());
-    assertEquals(metatdataCreator.getId(), restoredOsm.getAcMetadataCreator().getId());
+    assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
+
+    // Test read-only getAcSubTypeId Formula field:
+    assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
+    assertEquals(ost.getId(), restoredOsm.getAcSubType().getId());
+
     assertEquals(derivedFrom.getId(), restoredOsm.getAcDerivedFrom().getId());
-    assertEquals(metatdataCreator.getId(), restoredOsm.getDcCreator().getId());
   }
 
 }

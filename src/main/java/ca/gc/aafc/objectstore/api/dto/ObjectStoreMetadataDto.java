@@ -42,6 +42,7 @@ public class ObjectStoreMetadataDto {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerms;
   
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
@@ -62,18 +63,21 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
   
-  @JsonApiRelation
-  private AgentDto acMetadataCreator;
+  private UUID acMetadataCreator;
   
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
 
-  @JsonApiRelation
-  private AgentDto dcCreator;
+  private UUID dcCreator;
 
   private boolean publiclyReleasable;
 
   @JsonInclude(Include.NON_EMPTY)
   private String notPubliclyReleasableReason;
+
+  @JsonInclude(Include.NON_EMPTY)
+  private String acSubType;
+  
+  private String group;
 
 }
