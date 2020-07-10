@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectSubtype objectSubtypeUnderTest = ObjectSubtypeFactory.newObjectSubtype()
-      .acSubtype("drawing")
       .build();
 
   @Override
@@ -26,13 +24,13 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
     ObjectSubtype fetchedAcSubtype = find(ObjectSubtype.class,
         objectSubtypeUnderTest.getId());
     assertEquals(objectSubtypeUnderTest.getId(), fetchedAcSubtype.getId());
-    assertEquals("drawing", fetchedAcSubtype.getAcSubtype());
+    assertEquals(objectSubtypeUnderTest.getAcSubtype(), fetchedAcSubtype.getAcSubtype());
   }
 
   @Override
   public void testRemove() {
     Integer id = objectSubtypeUnderTest.getId();
-    remove(ObjectSubtype.class, id);
+    deleteById(ObjectSubtype.class, id);
     assertNull(find(ObjectSubtype.class, id));
   }
 }

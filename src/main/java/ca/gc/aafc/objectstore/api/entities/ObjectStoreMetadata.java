@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
@@ -29,6 +30,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -47,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements SoftDeletable {
+public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private Integer id;
 
@@ -66,6 +68,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerms;
 
   private String originalFilename;
 
@@ -77,13 +80,18 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private OffsetDateTime deletedDate;
 
   private List<MetadataManagedAttribute> managedAttribute;
-  private Agent acMetadataCreator;
-  private Agent dcCreator;
+  private UUID acMetadataCreator;
+  private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
-
+  
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
+  
+  private ObjectSubtype acSubType;
+  
+  /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
+  private Integer acSubTypeId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -129,7 +137,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   }
 
   /**
-   * Returns ileIdentifier + fileExtension
+   * Returns fileIdentifier + fileExtension
    * 
    * @return
    */
@@ -254,27 +262,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   public void setManagedAttribute(List<MetadataManagedAttribute> managedAttribute) {
     this.managedAttribute = managedAttribute;
   }
-
-  @OneToOne
-  @JoinColumn(name = "ac_metadata_creator_id", referencedColumnName = "id")
-  public Agent getAcMetadataCreator() {
-    return acMetadataCreator;
-  }
-
-  public void setAcMetadataCreator(Agent acMetadataCreator) {
-    this.acMetadataCreator = acMetadataCreator;
-  }
-
-  @OneToOne
-  @JoinColumn(name = "dc_creator_id", referencedColumnName = "id")
-  public Agent getDcCreator() {
-    return dcCreator;
-  }
-
-  public void setDcCreator(Agent dcCreator) {
-    this.dcCreator = dcCreator;
-  }
-
+  
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -346,6 +334,26 @@ public class ObjectStoreMetadata implements SoftDeletable {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
   }
 
+  @ManyToOne
+  @JoinColumn(name = "ac_sub_type_id", referencedColumnName = "id")
+  public ObjectSubtype getAcSubType() {
+    return acSubType;
+  }
+
+  public void setAcSubType(ObjectSubtype acSubType) {
+    this.acSubType = acSubType;
+  }
+
+  /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
+  @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
+  public Integer getAcSubTypeId() {
+    return acSubTypeId;
+  }
+
+  public void setAcSubTypeId(Integer acSubTypeId) {
+    this.acSubTypeId = acSubTypeId;
+  }
+
   // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
   // DTO has a relation that the entity doesn't.
   @Deprecated
@@ -366,4 +374,44 @@ public class ObjectStoreMetadata implements SoftDeletable {
     this.uuid = UUID.randomUUID();
   }
 
+  @Column(name = "ac_metadata_creator_id")
+  public UUID getAcMetadataCreator() {
+    return acMetadataCreator;
+  }
+
+  public void setAcMetadataCreator(UUID acMetadataCreator) {
+    this.acMetadataCreator = acMetadataCreator;
+  }
+
+  @Column(name = "dc_creator_id")
+  public UUID getDcCreator() {
+    return dcCreator;
+  }
+
+  public void setDcCreator(UUID dcCreator) {
+    this.dcCreator = dcCreator;
+  }
+
+  @NotNull
+  @Column(name = "xmp_rights_usage_terms")
+  @Size(max = 500)
+  public String getXmpRightsUsageTerms() {
+    return xmpRightsUsageTerms;
+  }
+
+  public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
+    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
+  }
+  
+  /** Transient field until base implementation is ready **/ 
+  @Transient  
+  public String getGroup() {
+    return bucket;
+  }
+  
+  /** Empty setter method to avoid resource method error: missing accessor method until 
+   *  multiple custom field resolvers can be associated with single resource
+   */
+  public void setGroup(String group) {    
+  }  
 }

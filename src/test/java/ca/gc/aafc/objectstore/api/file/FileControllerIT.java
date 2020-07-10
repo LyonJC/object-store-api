@@ -1,8 +1,10 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,9 +25,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import io.crnk.core.exception.UnauthorizedException;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -43,27 +47,27 @@ public class FileControllerIT {
   @Inject
   private MinioFileService minioFileService;
 
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
+    .findFirst().get();
+
   @Transactional
   @Test
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
-    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+    MockMultipartFile mockFile = getFileUnderTest();
 
-    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
+    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, "mybucket");
+    UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
-    UUID fileId = uploadResponse.getFileIdentifier();
-
-    // Persist the associated metadata separately:
-    ObjectStoreMetadata newMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-      .fileIdentifier(fileId)
+    // Persist the associated metadata and thumbnail meta separately:
+    ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .fileIdentifier(thumbnailIdentifier)
       .build();
-    entityManager.persist(newMetadata);
-
+    entityManager.persist(thumbMetaData);
+    
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
-      "mybucket",
-      fileId + ".thumbnail"
+      bucketUnderTest,
+      thumbnailIdentifier + ".thumbnail"
     );
 
     assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
@@ -72,19 +76,32 @@ public class FileControllerIT {
   @Transactional
   @Test
   public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
-    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+    MockMultipartFile mockFile = getFileUnderTest();
 
-    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
-
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, "mybucket");
+    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
     Optional<InputStream> response = minioFileService.getFile(
       uploadResponse.getFileMetaEntryFilename(),
-      "mybucket"
+      bucketUnderTest
     );
 
     assertTrue(response.isPresent());
+  }
+
+  @Test
+  public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
+    MockMultipartFile mockFile = getFileUnderTest();
+
+    assertThrows(
+      UnauthorizedException.class,
+      () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
+  }
+
+  private MockMultipartFile getFileUnderTest() throws IOException {
+    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
+    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+
+    return new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
   }
 
 }
