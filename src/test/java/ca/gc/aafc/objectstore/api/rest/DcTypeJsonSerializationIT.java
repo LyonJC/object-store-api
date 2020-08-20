@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
@@ -35,7 +36,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   @AfterEach
   public void tearDown() {
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<ObjectSubtype> query = criteriaBuilder.createCriteriaDelete(ObjectSubtype.class);
       Root<ObjectSubtype> root = query.from(ObjectSubtype.class);
@@ -70,7 +71,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
     objAttribMap.put("dcType", dcType);
     objAttribMap.put("acSubtype", AC_SUB_TYPE);
 
-    return BaseJsonApiIntegrationTest.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
+    return JsonAPITestHelper.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }
 
 }

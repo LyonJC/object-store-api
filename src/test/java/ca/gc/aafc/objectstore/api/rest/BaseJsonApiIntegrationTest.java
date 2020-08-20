@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.respository.DcTypeJsonSerDe;
@@ -179,33 +180,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return
    */
   protected Map<String, Object> toJsonAPIMap(Map<String, Object> attributeMap, Map<String, Object> relationshipMap) {
-    return toJsonAPIMap(getResourceUnderTest(), attributeMap, relationshipMap, null);
-  }
-
-  /**
-   * Creates a JSON API Map from the provided type name, attributes and id.
-   * 
-   * @param typeName
-   *          "type" in JSON API
-   * @param attributeMap
-   *          key/value representing the "attributes" in JSON API
-   * @param id
-   *          id of the resource or null if there is none
-   * @return
-   */
-  public static Map<String, Object> toJsonAPIMap(String typeName,
-      Map<String, Object> attributeMap, Map<String, Object> relationshipMap, String id) {
-    ImmutableMap.Builder<String, Object> bldr = new ImmutableMap.Builder<>();
-    bldr.put("type", typeName);
-    if (id != null) {
-      bldr.put("id", id);
-    }
-
-    bldr.put("attributes", attributeMap);
-    if(relationshipMap != null) {
-      bldr.put("relationships", relationshipMap);
-    }
-    return ImmutableMap.of("data", bldr.build());
+    return JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), attributeMap, relationshipMap, null);
   }
   
   protected static Map<String, Object> toRelationshipMap(List<Relationship> relationship) {
@@ -355,7 +330,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     Map<String, Object> updatedAttributeMap = buildUpdateAttributeMap();
     
     // update the resource
-    sendPatch(id, toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
+    sendPatch(id, JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
 
     ValidatableResponse responseUpdate = sendGet(id);
     // verify
@@ -389,14 +364,20 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
 
   /**
-   * Sends a DELETE to the resource under test for the provided id. Asserts that it returns HTTP NO
-   * CONTENT 204.
+   * Sends a DELETE to the resource under test for the provided id. Asserts that
+   * it returns HTTP NO CONTENT 204.
    * 
    * @param id
    */
   protected void sendDelete(String id) {
-    Response response = given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id);
-    response.then().statusCode(HttpStatus.NO_CONTENT.value());
+    sendDelete(id, HttpStatus.NO_CONTENT.value());
+  }
+
+  protected void sendDelete(String id, int code) {
+    given().contentType(JSON_API_CONTENT_TYPE)
+      .when()
+      .delete(getResourceUnderTest() + "/" + id)
+      .then().statusCode(code);
   }
 
   /**
@@ -407,7 +388,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return id of the newly created resource
    */
   protected String sendPost(Map<String, Object> dataMap) {
-    return sendPost(getResourceUnderTest(), dataMap);
+    return sendPost(getResourceUnderTest(), dataMap, HttpStatus.CREATED.value());
   }
   
   /**
@@ -418,11 +399,11 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param dataMap body of the POST as Map
    * @return id of the newly created resource
    */
-  protected String sendPost(String resourceName, Map<String, Object> dataMap) {
+  protected String sendPost(String resourceName, Map<String, Object> dataMap, int code) {
     log.info("Posting to resourceName: {}", () -> dataMap);
     Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
         .post(resourceName);
-    response.then().statusCode(HttpStatus.CREATED.value());
+    response.then().statusCode(code);
     String id = (String) response.body().jsonPath().get("data.id");
     return id;
   }
@@ -435,9 +416,17 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return
    */
   protected ValidatableResponse sendPatch(String id, Map<String, Object> dataMap) {
-    Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
-        .patch(getResourceUnderTest() + "/" + id);
-    return response.then().statusCode(HttpStatus.OK.value());
+    return sendPatch(id, HttpStatus.OK.value(), dataMap);
+  }
+
+  protected ValidatableResponse sendPatch(String id, int code, Map<String, Object> dataMap) {
+    return given().header("crnk-compact", "true")
+      .contentType(JSON_API_CONTENT_TYPE)
+      .body(dataMap)
+      .when()
+      .patch(getResourceUnderTest() + "/" + id)
+      .then()
+      .statusCode(code);
   }
 
   /**
@@ -450,7 +439,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param entityClass      - Class representing the entity to delete.
    */
   protected <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<T> query = criteriaBuilder.createCriteriaDelete(entityClass);
       Root<T> root = query.from(entityClass);
